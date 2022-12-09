@@ -5,14 +5,14 @@
 // Released under the MIT license
 // https://github.com/oakmac/chessboardjs/blob/master/LICENSE.md
 
-// start anonymous scope
+// スコープを開始
 ;(function () {
   'use strict'
 
   var $ = window['jQuery']
 
   // ---------------------------------------------------------------------------
-  // Constants
+  // 定数
   // ---------------------------------------------------------------------------
 
   var COLUMNS = 'abcdefgh'.split('')
@@ -23,16 +23,15 @@
   var START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
   var START_POSITION = fenToObj(START_FEN)
 
-  // default animation speeds
+  // デフォルトのアニメーション速度
   var DEFAULT_APPEAR_SPEED = 200
   var DEFAULT_MOVE_SPEED = 200
   var DEFAULT_SNAPBACK_SPEED = 60
   var DEFAULT_SNAP_SPEED = 30
   var DEFAULT_TRASH_SPEED = 100
 
-  // use unique class names to prevent clashing with anything else on the page
-  // and simplify selectors
-  // NOTE: these should never change
+  // 一意のクラス名を使用して、ページ上の他のものとの衝突を防ぎ、セレクターを簡素化する
+  // NOTE: これは変えないで
   var CSS = {}
   CSS['alpha'] = 'alpha-d2270'
   CSS['black'] = 'black-3c85d'
@@ -52,7 +51,7 @@
   CSS['white'] = 'white-1e1d7'
 
   // ---------------------------------------------------------------------------
-  // Misc Util Functions
+  // その他のユーティリティ関数
   // ---------------------------------------------------------------------------
 
   function throttle (f, interval, scope) {
@@ -180,10 +179,10 @@
   }
 
   function validMove (move) {
-    // move should be a string
+    // move は文字列
     if (!isString(move)) return false
 
-    // move should be in the form of "e2-e4", "f6-d5"
+    // move は次の形式にする必要がある  "e2-e4", "f6-d5"
     var squares = move.split('-')
     if (squares.length !== 2) return false
 
@@ -225,18 +224,18 @@
   function validFen (fen) {
     if (!isString(fen)) return false
 
-    // cut off any move, castling, etc info from the end
-    // we're only interested in position information
+    // 移動、キャスリングなどの情報を切り取る
+    // 位置情報だけを見る
     fen = fen.replace(/ .+$/, '')
 
-    // expand the empty square numbers to just 1s
+    // 空の平方数を 1 だけに拡張する
     fen = expandFenEmptySquares(fen)
 
-    // FEN should be 8 sections separated by slashes
+    // FEN は、スラッシュで区切られた 8 つのセクションである必要がある
     var chunks = fen.split('/')
     if (chunks.length !== 8) return false
 
-    // check each section
+    // 各セクションをチェック
     for (var i = 0; i < 8; i++) {
       if (chunks[i].length !== 8 ||
           chunks[i].search(/[^kqrnbpKQRNBP1]/) !== -1) {
@@ -302,37 +301,37 @@
   // Chess Util Functions
   // ---------------------------------------------------------------------------
 
-  // convert FEN piece code to bP, wK, etc
+  // convert FEN piece code をbP、wKなどに変換
   function fenToPieceCode (piece) {
-    // black piece
+    // 黒い駒
     if (piece.toLowerCase() === piece) {
       return 'b' + piece.toUpperCase()
     }
 
-    // white piece
+    // 白い駒
     return 'w' + piece.toUpperCase()
   }
 
-  // convert bP, wK, etc code to FEN structure
+  // convert bP, wK, etc code をFEN 構造に変換する
   function pieceCodeToFen (piece) {
     var pieceCodeLetters = piece.split('')
 
-    // white piece
+    // 白い駒
     if (pieceCodeLetters[0] === 'w') {
       return pieceCodeLetters[1].toUpperCase()
     }
 
-    // black piece
+    // 黒い駒
     return pieceCodeLetters[1].toLowerCase()
   }
 
-  // convert FEN string to position object
-  // returns false if the FEN string is invalid
+  // FEN 文字列を位置オブジェクトに変換する
+  // FEN 文字列が無効な場合は false を返す
   function fenToObj (fen) {
     if (!validFen(fen)) return false
 
-    // cut off any move, castling, etc info from the end
-    // we're only interested in position information
+    // 移動、キャスリングなどの情報を切り取る
+    // 位置情報だけを見る
     fen = fen.replace(/ .+$/, '')
 
     var rows = fen.split('/')
@@ -343,14 +342,14 @@
       var row = rows[i].split('')
       var colIdx = 0
 
-      // loop through each character in the FEN section
+      // FEN セクションの各文字をループする
       for (var j = 0; j < row.length; j++) {
         // number / empty squares
         if (row[j].search(/[1-8]/) !== -1) {
           var numEmptySquares = parseInt(row[j], 10)
           colIdx = colIdx + numEmptySquares
         } else {
-          // piece
+          // 駒
           var square = COLUMNS[colIdx] + currentRow
           position[square] = fenToPieceCode(row[j])
           colIdx = colIdx + 1
@@ -363,8 +362,8 @@
     return position
   }
 
-  // position object to FEN string
-  // returns false if the obj is not a valid position object
+  // オブジェクトを FEN 文字列に配置する
+  // FEN 文字列への obj 位置オブジェクトが有効な位置オブジェクトでない場合は false を返す
   function objToFen (obj) {
     if (!validPositionObject(obj)) return false
 
@@ -375,11 +374,11 @@
       for (var j = 0; j < 8; j++) {
         var square = COLUMNS[j] + currentRow
 
-        // piece exists
+        // 駒が存在する場合
         if (obj.hasOwnProperty(square)) {
           fen = fen + pieceCodeToFen(obj[square])
         } else {
-          // empty space
+          // 空きスペース
           fen = fen + '1'
         }
       }
@@ -391,7 +390,7 @@
       currentRow = currentRow - 1
     }
 
-    // squeeze the empty numbers together
+    // 空の数字を併せて絞る
     fen = squeezeFenEmptySquares(fen)
 
     return fen
@@ -423,7 +422,7 @@
       .replace(/2/g, '11')
   }
 
-  // returns the distance between two squares
+  // 2 つのマスの間の距離を返す
   function squareDistance (squareA, squareB) {
     var squareAArray = squareA.split('')
     var squareAx = COLUMNS.indexOf(squareAArray[0]) + 1
@@ -440,13 +439,13 @@
     return yDelta
   }
 
-  // returns the square of the closest instance of piece
-  // returns false if no instance of piece is found in position
+  // 駒の最も近いインスタンスの二乗を返す
+  // 駒のインスタンスの位置にが見つからない場合は false を返す
   function findClosestPiece (position, piece, square) {
-    // create array of closest squares from square
+    // 正方形から最も近いマスの配列を作成する
     var closestSquares = createRadius(square)
 
-    // search through the position in order of distance for the piece
+    // 駒の距離順に位置を検索する
     for (var i = 0; i < closestSquares.length; i++) {
       var s = closestSquares[i]
 
@@ -458,16 +457,16 @@
     return false
   }
 
-  // returns an array of closest squares from square
+  // 正方形から最も近いマスの配列を返す
   function createRadius (square) {
     var squares = []
 
-    // calculate distance of all squares
+    // すべてのマスの距離を計算する
     for (var i = 0; i < 8; i++) {
       for (var j = 0; j < 8; j++) {
         var s = COLUMNS[i] + (j + 1)
 
-        // skip the square we're starting from
+        // 自分たちが出発しているマスをキップ
         if (square === s) continue
 
         squares.push({
@@ -477,12 +476,12 @@
       }
     }
 
-    // sort by distance
+    // 距離順に並べる
     squares.sort(function (a, b) {
       return a.distance - b.distance
     })
 
-    // just return the square code
+    // スクエアコードを返すだけ
     var surroundingSquares = []
     for (i = 0; i < squares.length; i++) {
       surroundingSquares.push(squares[i].square)
@@ -491,15 +490,14 @@
     return surroundingSquares
   }
 
-  // given a position and a set of moves, return a new position
-  // with the moves executed
+  // 位置と一連の動きを指定すると、実行された動きで新しい位置を返す
   function calculatePositionFromMoves (position, moves) {
     var newPosition = deepCopy(position)
 
     for (var i in moves) {
       if (!moves.hasOwnProperty(i)) continue
 
-      // skip the move if the position doesn't have a piece on the source square
+      // 移動元のマスに駒がない場合は移動をスキップする
       if (!newPosition.hasOwnProperty(i)) continue
 
       var piece = newPosition[i]
@@ -510,7 +508,7 @@
     return newPosition
   }
 
-  // TODO: add some asserts here for calculatePositionFromMoves
+  // TODO: ここに calculatePositionFromMoves のいくつかのアサートを追加する
 
   // ---------------------------------------------------------------------------
   // HTML
@@ -547,56 +545,56 @@
       config = {position: deepCopy(config)}
     }
 
-    // config must be an object
+    // config はオブジェクトでなければならない
     if (!$.isPlainObject(config)) config = {}
 
     return config
   }
 
-  // validate config / set default options
+  // 構成の検証 / デフォルト オプションの設定
   function expandConfig (config) {
-    // default for orientation is white
+    // デフォルトの方向は白
     if (config.orientation !== 'black') config.orientation = 'white'
 
-    // default for showNotation is true
+    // showNotation のデフォルトは true
     if (config.showNotation !== false) config.showNotation = true
 
-    // default for draggable is false
+    // draggableのデフォルトはfalse
     if (config.draggable !== true) config.draggable = false
 
-    // default for dropOffBoard is 'snapback'
+    // dropOffBoardのデフォルトは'snapback'
     if (config.dropOffBoard !== 'trash') config.dropOffBoard = 'snapback'
 
-    // default for sparePieces is false
+    // sparePiecesのデフォルトはfalse
     if (config.sparePieces !== true) config.sparePieces = false
 
-    // draggable must be true if sparePieces is enabled
+    // SparePieces が有効な場合、draggbleは true でなければならない
     if (config.sparePieces) config.draggable = true
 
-    // default piece theme is wikipedia
+    // デフォルトの駒のテーマはwikipedia
     if (!config.hasOwnProperty('pieceTheme') ||
         (!isString(config.pieceTheme) && !isFunction(config.pieceTheme))) {
       config.pieceTheme = 'img/chesspieces/wikipedia/{piece}.png'
     }
 
-    // animation speeds
+    // アニメーション速度
     if (!validAnimationSpeed(config.appearSpeed)) config.appearSpeed = DEFAULT_APPEAR_SPEED
     if (!validAnimationSpeed(config.moveSpeed)) config.moveSpeed = DEFAULT_MOVE_SPEED
     if (!validAnimationSpeed(config.snapbackSpeed)) config.snapbackSpeed = DEFAULT_SNAPBACK_SPEED
     if (!validAnimationSpeed(config.snapSpeed)) config.snapSpeed = DEFAULT_SNAP_SPEED
     if (!validAnimationSpeed(config.trashSpeed)) config.trashSpeed = DEFAULT_TRASH_SPEED
 
-    // throttle rate
+    // スロットル率
     if (!validThrottleRate(config.dragThrottleRate)) config.dragThrottleRate = DEFAULT_DRAG_THROTTLE_RATE
 
     return config
   }
 
   // ---------------------------------------------------------------------------
-  // Dependencies
+  // 依存関係
   // ---------------------------------------------------------------------------
 
-  // check for a compatible version of jQuery
+  // 互換性のある jQuery のバージョンを確認する
   function checkJQuery () {
     if (!validJQueryVersion()) {
       var errorMsg = 'Chessboard Error 1005: Unable to find a valid version of jQuery. ' +
@@ -610,7 +608,7 @@
     return true
   }
 
-  // return either boolean false or the $container element
+  // boolean false または $container 要素のいずれかを返す
   function checkContainerArg (containerElOrString) {
     if (containerElOrString === '') {
       var errorMsg1 = 'Chessboard Error 1001: ' +
@@ -621,13 +619,13 @@
       return false
     }
 
-    // convert containerEl to query selector if it is a string
+    // 文字列の場合、containerEl をクエリ セレクタに変換する
     if (isString(containerElOrString) &&
         containerElOrString.charAt(0) !== '#') {
       containerElOrString = '#' + containerElOrString
     }
 
-    // containerEl must be something that becomes a jQuery collection of size 1
+    // containerEl は、サイズ 1 の jQuery コレクションになるものでなければならない
     var $container = $(containerElOrString)
     if ($container.length !== 1) {
       var errorMsg2 = 'Chessboard Error 1003: ' +
@@ -643,16 +641,16 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Constructor
+  // コンストラクタ
   // ---------------------------------------------------------------------------
 
   function constructor (containerElOrString, config) {
-    // first things first: check basic dependencies
+    // まず最初に基本的な依存関係を確認する
     if (!checkJQuery()) return null
     var $container = checkContainerArg(containerElOrString)
     if (!$container) return null
 
-    // ensure the config object is what we expect
+    // 構成オブジェクトが期待どおりであることを確認する
     config = expandConfigArgumentShorthand(config)
     config = expandConfig(config)
 
@@ -682,11 +680,11 @@
     var squareSize = 16
 
     // -------------------------------------------------------------------------
-    // Validation / Errors
+    // 検証 / エラー
     // -------------------------------------------------------------------------
 
     function error (code, msg, obj) {
-      // do nothing if showErrors is not set
+      // showErrors が設定されていない場合は何もしない
       if (
         config.hasOwnProperty('showErrors') !== true ||
           config.showErrors === false
@@ -696,7 +694,7 @@
 
       var errorText = 'Chessboard Error ' + code + ': ' + msg
 
-      // print to console
+      // コンソールに出力
       if (
         config.showErrors === 'console' &&
           typeof console === 'object' &&
@@ -709,7 +707,7 @@
         return
       }
 
-      // alert errors
+      // 警告エラー
       if (config.showErrors === 'alert') {
         if (obj) {
           errorText += '\n\n' + JSON.stringify(obj)
@@ -727,7 +725,7 @@
     function setInitialState () {
       currentOrientation = config.orientation
 
-      // make sure position is valid
+      // 位置が有効であることを確認してください
       if (config.hasOwnProperty('position')) {
         if (config.position === 'start') {
           currentPosition = deepCopy(START_POSITION)
@@ -746,23 +744,23 @@
     }
 
     // -------------------------------------------------------------------------
-    // DOM Misc
+    // DOM その他
     // -------------------------------------------------------------------------
 
-    // calculates square size based on the width of the container
-    // got a little CSS black magic here, so let me explain:
-    // get the width of the container element (could be anything), reduce by 1 for
-    // fudge factor, and then keep reducing until we find an exact mod 8 for
+    // calculates square size based on the width of the container						containerの幅に基づいてマスのサイズを計算する
+    // got a little CSS black magic here, so let me explain:							ここでCSSのヤベー裏技を手に入れたので、少し説明
+    // get the width of the container element (could be anything), reduce by 1 for		container要素の幅を取得する (何でもおｋ)
+    // fudge factor, and then keep reducing until we find an exact mod 8 for			ファッジ係数を 1 減らしてマスのサイズの正確な mod 8 が見つかるまで減らし続る
     // our square size
     function calculateSquareSize () {
       var containerWidth = parseInt($container.width(), 10)
 
-      // defensive, prevent infinite loop
+      // 無限ループを防ぐ
       if (!containerWidth || containerWidth <= 0) {
         return 0
       }
 
-      // pad one pixel
+      // 1 ピクセル埋める
       var boardWidth = containerWidth - 1
 
       while (boardWidth % 8 !== 0 && boardWidth > 0) {
@@ -772,9 +770,9 @@
       return boardWidth / 8
     }
 
-    // create random IDs for elements
+    // 要素のランダム ID を作成する
     function createElIds () {
-      // squares on the board
+      // ボード上のマス
       for (var i = 0; i < COLUMNS.length; i++) {
         for (var j = 1; j <= 8; j++) {
           var square = COLUMNS[i] + j
@@ -782,7 +780,7 @@
         }
       }
 
-      // spare pieces
+      // 予備の駒
       var pieces = 'KQRNBP'.split('')
       for (i = 0; i < pieces.length; i++) {
         var whitePiece = 'w' + pieces[i]
@@ -793,7 +791,7 @@
     }
 
     // -------------------------------------------------------------------------
-    // Markup Building
+    // マークアップの作成
     // -------------------------------------------------------------------------
 
     function buildBoardHTML (orientation) {
@@ -803,7 +801,7 @@
 
       var html = ''
 
-      // algebraic notation / orientation
+      // 代数表記 / 向き
       var alpha = deepCopy(COLUMNS)
       var row = 8
       if (orientation === 'black') {
@@ -824,13 +822,13 @@
             'data-square="' + square + '">'
 
           if (config.showNotation) {
-            // alpha notation
+            // アルファ表記
             if ((orientation === 'white' && row === 1) ||
                 (orientation === 'black' && row === 8)) {
               html += '<div class="{notation} {alpha}">' + alpha[j] + '</div>'
             }
 
-            // numeric notation
+            // 数値表記
             if (j === 0) {
               html += '<div class="{notation} {numeric}">' + row + '</div>'
             }
@@ -863,7 +861,7 @@
         return interpolateTemplate(config.pieceTheme, {piece: piece})
       }
 
-      // NOTE: this should never happen
+      // NOTE: 起きたらヤベーやつ
       error(8272, 'Unable to build image source for config.pieceTheme.')
       return ''
     }
@@ -902,18 +900,17 @@
     }
 
     // -------------------------------------------------------------------------
-    // Animations
+    // アニメーション
     // -------------------------------------------------------------------------
 
     function animateSquareToSquare (src, dest, piece, completeFn) {
-      // get information about the source and destination squares
+      // ソースと宛先のマスに関する情報を取得する
       var $srcSquare = $('#' + squareElsIds[src])
       var srcSquarePosition = $srcSquare.offset()
       var $destSquare = $('#' + squareElsIds[dest])
       var destSquarePosition = $destSquare.offset()
 
-      // create the animated piece and absolutely position it
-      // over the source square
+      // アニメーションを作成し、元のマスの上に配置する
       var animatedPieceId = uuid()
       $('body').append(buildPieceHTML(piece, true, animatedPieceId))
       var $animatedPiece = $('#' + animatedPieceId)
@@ -924,23 +921,23 @@
         left: srcSquarePosition.left
       })
 
-      // remove original piece from source square
+      // 元のマスから元居た場所の駒を削除する
       $srcSquare.find('.' + CSS.piece).remove()
 
       function onFinishAnimation1 () {
-        // add the "real" piece to the destination square
+        // 本物の駒を目的のマスに追加する
         $destSquare.append(buildPieceHTML(piece))
 
-        // remove the animated piece
+        // アニメーションを削除
         $animatedPiece.remove()
 
-        // run complete function
+        // 実行完了機能
         if (isFunction(completeFn)) {
           completeFn()
         }
       }
 
-      // animate the piece to the destination square
+      // 駒を行先に動かすアニメーション
       var opts = {
         duration: config.moveSpeed,
         complete: onFinishAnimation1
@@ -953,7 +950,7 @@
       var $destSquare = $('#' + squareElsIds[dest])
       var destOffset = $destSquare.offset()
 
-      // create the animate piece
+      // 駒のアニメーションを作成
       var pieceId = uuid()
       $('body').append(buildPieceHTML(piece, true, pieceId))
       var $animatedPiece = $('#' + pieceId)
@@ -964,22 +961,22 @@
         top: srcOffset.top
       })
 
-      // on complete
+      // 完了
       function onFinishAnimation2 () {
-        // add the "real" piece to the destination square
+        // 本物の駒を目的のマスに追加します
         $destSquare.find('.' + CSS.piece).remove()
         $destSquare.append(buildPieceHTML(piece))
 
-        // remove the animated piece
+        // 駒のアニメーションを削除
         $animatedPiece.remove()
 
-        // run complete function
+        // 完了機能
         if (isFunction(completeFn)) {
           completeFn()
         }
       }
 
-      // animate the piece to the destination square
+      // 駒を行先に動かすアニメーション
       var opts = {
         duration: config.moveSpeed,
         complete: onFinishAnimation2
@@ -987,19 +984,19 @@
       $animatedPiece.animate(destOffset, opts)
     }
 
-    // execute an array of animations
+    // アニメーションの配列を実行
     function doAnimations (animations, oldPos, newPos) {
       if (animations.length === 0) return
 
       var numFinished = 0
       function onFinishAnimation3 () {
-        // exit if all the animations aren't finished
+        // すべてのアニメーションが終了していない場合は終了
         numFinished = numFinished + 1
         if (numFinished !== animations.length) return
 
         drawPositionInstant()
 
-        // run their onMoveEnd function
+        // onMoveEnd 関数を実行する
         if (isFunction(config.onMoveEnd)) {
           config.onMoveEnd(deepCopy(oldPos), deepCopy(newPos))
         }
@@ -1008,40 +1005,39 @@
       for (var i = 0; i < animations.length; i++) {
         var animation = animations[i]
 
-        // clear a piece
+        // 駒をクリアする
         if (animation.type === 'clear') {
           $('#' + squareElsIds[animation.square] + ' .' + CSS.piece)
             .fadeOut(config.trashSpeed, onFinishAnimation3)
 
-        // add a piece with no spare pieces - fade the piece onto the square
+        // スペアの駒なしで駒を追加する - 駒をマスにフェードします
         } else if (animation.type === 'add' && !config.sparePieces) {
           $('#' + squareElsIds[animation.square])
             .append(buildPieceHTML(animation.piece, true))
             .find('.' + CSS.piece)
             .fadeIn(config.appearSpeed, onFinishAnimation3)
 
-        // add a piece with spare pieces - animate from the spares
+        // スペアの駒から駒を追加する - スペアからアニメート
         } else if (animation.type === 'add' && config.sparePieces) {
           animateSparePieceToSquare(animation.piece, animation.square, onFinishAnimation3)
 
-        // move a piece from squareA to squareB
+        // 駒をマスAからマスBに動かす
         } else if (animation.type === 'move') {
           animateSquareToSquare(animation.source, animation.destination, animation.piece, onFinishAnimation3)
         }
       }
     }
 
-    // calculate an array of animations that need to happen in order to get
-    // from pos1 to pos2
+    // pos1 から pos2 に移動するために必要なアニメーションの配列を計算する
     function calculateAnimations (pos1, pos2) {
-      // make copies of both
+      // 両方のコピーを作成する
       pos1 = deepCopy(pos1)
       pos2 = deepCopy(pos2)
 
       var animations = []
       var squaresMovedTo = {}
 
-      // remove pieces that are the same in both positions
+      // 両方の位置で同じ駒を削除します
       for (var i in pos2) {
         if (!pos2.hasOwnProperty(i)) continue
 
@@ -1051,7 +1047,7 @@
         }
       }
 
-      // find all the "move" animations
+      // すべての移動アニメーションを見つける
       for (i in pos2) {
         if (!pos2.hasOwnProperty(i)) continue
 
@@ -1087,8 +1083,8 @@
       for (i in pos1) {
         if (!pos1.hasOwnProperty(i)) continue
 
-        // do not clear a piece if it is on a square that is the result
-        // of a "move", ie: a piece capture
+        // 「移動」の結果であるマスにある場合、駒をクリアしない
+        // 例: a piece capture
         if (squaresMovedTo.hasOwnProperty(i)) continue
 
         animations.push({
@@ -1104,14 +1100,14 @@
     }
 
     // -------------------------------------------------------------------------
-    // Control Flow
+    // 制御フロー
     // -------------------------------------------------------------------------
 
     function drawPositionInstant () {
-      // clear the board
+      // ボードをクリア
       $board.find('.' + CSS.piece).remove()
 
-      // add the pieces
+      // 駒を追加
       for (var i in currentPosition) {
         if (!currentPosition.hasOwnProperty(i)) continue
 
@@ -1140,15 +1136,15 @@
       var oldFen = objToFen(oldPos)
       var newFen = objToFen(newPos)
 
-      // do nothing if no change in position
+      // ポジションが変わらなければ何もしない
       if (oldFen === newFen) return
 
-      // run their onChange function
+      // onChange 関数を実行する
       if (isFunction(config.onChange)) {
         config.onChange(oldPos, newPos)
       }
 
-      // update state
+      // 更新
       currentPosition = position
     }
 
@@ -1168,7 +1164,7 @@
       return 'offboard'
     }
 
-    // records the XY coords of every square into memory
+    // すべてのマスの XY 座標をメモリに記録
     function captureSquareOffsets () {
       squareElsOffsets = {}
 
@@ -1186,7 +1182,7 @@
     }
 
     function snapbackDraggedPiece () {
-      // there is no "snapback" for spare pieces
+      // スペアパーツの"snapback"がない
       if (draggedPieceSource === 'spare') {
         trashDraggedPiece()
         return
@@ -1194,12 +1190,12 @@
 
       removeSquareHighlights()
 
-      // animation complete
+      // アニメーション完了
       function complete () {
         drawPositionInstant()
         $draggedPiece.css('display', 'none')
 
-        // run their onSnapbackEnd function
+        // onSnapbackEnd 関数を実行
         if (isFunction(config.onSnapbackEnd)) {
           config.onSnapbackEnd(
             draggedPiece,
@@ -1210,10 +1206,10 @@
         }
       }
 
-      // get source square position
+      // ソーススクエアの位置を取得
       var sourceSquarePosition = $('#' + squareElsIds[draggedPieceSource]).offset()
 
-      // animate the piece to the target square
+      // 駒をターゲットのマスにアニメーションする
       var opts = {
         duration: config.snapbackSpeed,
         complete: complete
@@ -1227,15 +1223,15 @@
     function trashDraggedPiece () {
       removeSquareHighlights()
 
-      // remove the source piece
+      // ソースの一部を取り除く
       var newPosition = deepCopy(currentPosition)
       delete newPosition[draggedPieceSource]
       setCurrentPosition(newPosition)
 
-      // redraw the position
+      // 位置を再描画します
       drawPositionInstant()
 
-      // hide the dragged piece
+      // ドラッグした駒を隠す
       $draggedPiece.fadeOut(config.trashSpeed)
 
       // set state
@@ -1245,27 +1241,27 @@
     function dropDraggedPieceOnSquare (square) {
       removeSquareHighlights()
 
-      // update position
+      // 位置を更新
       var newPosition = deepCopy(currentPosition)
       delete newPosition[draggedPieceSource]
       newPosition[square] = draggedPiece
       setCurrentPosition(newPosition)
 
-      // get target square information
+      // ターゲットのマス情報を取得する
       var targetSquarePosition = $('#' + squareElsIds[square]).offset()
 
-      // animation complete
+      // アニメーション完了
       function onAnimationComplete () {
         drawPositionInstant()
         $draggedPiece.css('display', 'none')
 
-        // execute their onSnapEnd function
+        // onSnapEnd 関数を実行する
         if (isFunction(config.onSnapEnd)) {
           config.onSnapEnd(draggedPieceSource, square, draggedPiece)
         }
       }
 
-      // snap the piece to the target square
+      // 駒をターゲットのマスにスナップする
       var opts = {
         duration: config.snapSpeed,
         complete: onAnimationComplete
@@ -1277,8 +1273,8 @@
     }
 
     function beginDraggingPiece (source, piece, x, y) {
-      // run their custom onDragStart function
-      // their custom onDragStart function can cancel drag start
+      // カスタム onDragStart 関数を実行する
+      // カスタム onDragStart 関数はドラッグ開始をキャンセルできる
       if (isFunction(config.onDragStart) &&
           config.onDragStart(source, piece, deepCopy(currentPosition), currentOrientation) === false) {
         return
@@ -1289,17 +1285,17 @@
       draggedPiece = piece
       draggedPieceSource = source
 
-      // if the piece came from spare pieces, location is offboard
+      // 駒がスペアの駒から来た場合、'offboard'です
       if (source === 'spare') {
         draggedPieceLocation = 'offboard'
       } else {
         draggedPieceLocation = source
       }
 
-      // capture the x, y coords of all squares in memory
+      // メモリ内のすべての正方形の x、y 座標をキャプチャします
       captureSquareOffsets()
 
-      // create the dragged piece
+      // ドラッグされた駒を作成
       $draggedPiece.attr('src', buildPieceImgSrc(piece)).css({
         display: '',
         position: 'absolute',
@@ -1308,7 +1304,7 @@
       })
 
       if (source !== 'spare') {
-        // highlight the source square and hide the piece
+        // ソースの正方形を強調表示し、ピースを非表示にします
         $('#' + squareElsIds[source])
           .addClass(CSS.highlight1)
           .find('.' + CSS.piece)
@@ -1317,29 +1313,29 @@
     }
 
     function updateDraggedPiece (x, y) {
-      // put the dragged piece over the mouse cursor
+      // ドラッグした駒をマウスカーソルの上に置く
       $draggedPiece.css({
         left: x - squareSize / 2,
         top: y - squareSize / 2
       })
 
-      // get location
+      // 場所を取得
       var location = isXYOnSquare(x, y)
 
-      // do nothing if the location has not changed
+      // 場所が変わっていない場合は何もしない
       if (location === draggedPieceLocation) return
 
-      // remove highlight from previous square
+      // 前の正方形からハイライトを削除
       if (validSquare(draggedPieceLocation)) {
         $('#' + squareElsIds[draggedPieceLocation]).removeClass(CSS.highlight2)
       }
 
-      // add highlight to new square
+      // 新しい正方形にハイライトを追加
       if (validSquare(location)) {
         $('#' + squareElsIds[location]).addClass(CSS.highlight2)
       }
 
-      // run onDragMove
+      // onDragMove を実行
       if (isFunction(config.onDragMove)) {
         config.onDragMove(
           location,
@@ -1351,12 +1347,12 @@
         )
       }
 
-      // update state
+      // 更新
       draggedPieceLocation = location
     }
 
     function stopDraggedPiece (location) {
-      // determine what the action should be
+      // 動作がどうあるべきかを決定する
       var action = 'drop'
       if (location === 'offboard' && config.dropOffBoard === 'snapback') {
         action = 'snapback'
@@ -1365,29 +1361,29 @@
         action = 'trash'
       }
 
-      // run their onDrop function, which can potentially change the drop action
+      // onDrop 関数を実行します。これにより、ドロップ アクションが変更される可能性があります
       if (isFunction(config.onDrop)) {
         var newPosition = deepCopy(currentPosition)
 
-        // source piece is a spare piece and position is off the board
+        // source piece is a spare piece and position is off the board				元の駒はスペアの駒であり、位置はボードから外れている
         // if (draggedPieceSource === 'spare' && location === 'offboard') {...}
-        // position has not changed; do nothing
+        // position has not changed; do nothing										位置が変更されていない場合何もしない
 
-        // source piece is a spare piece and position is on the board
+        // 元の駒はスペアの駒であり、位置はボード上にある
         if (draggedPieceSource === 'spare' && validSquare(location)) {
-          // add the piece to the board
+          // 駒をボードに追加する
           newPosition[location] = draggedPiece
         }
 
-        // source piece was on the board and position is off the board
+        // 元の駒がボード上にあり、位置がボードから外れている
         if (validSquare(draggedPieceSource) && location === 'offboard') {
-          // remove the piece from the board
+          // 盤から駒を取り除く
           delete newPosition[draggedPieceSource]
         }
 
-        // source piece was on the board and position is on the board
+        // 元の駒はボード上にあり、位置はボード上にあります
         if (validSquare(draggedPieceSource) && validSquare(location)) {
-          // move the piece
+          // 駒を動かす
           delete newPosition[draggedPieceSource]
           newPosition[location] = draggedPiece
         }
@@ -1421,50 +1417,50 @@
     // Public Methods
     // -------------------------------------------------------------------------
 
-    // clear the board
+    // ボードをクリア
     widget.clear = function (useAnimation) {
       widget.position({}, useAnimation)
     }
 
-    // remove the widget from the page
+    // ページからウィジェットを削除する
     widget.destroy = function () {
-      // remove markup
+      // マークアップを削除
       $container.html('')
       $draggedPiece.remove()
 
-      // remove event handlers
+      // イベントハンドラーを削除する
       $container.unbind()
     }
 
-    // shorthand method to get the current FEN
+    // 現在の FEN を取得する簡易メソッド
     widget.fen = function () {
       return widget.position('fen')
     }
 
-    // flip orientation
+    // 向きを反転
     widget.flip = function () {
       return widget.orientation('flip')
     }
 
-    // move pieces
-    // TODO: this method should be variadic as well as accept an array of moves
+    // 駒を動かす
+    // TODO: このメソッドは可変長であり、movesの配列を受け入れる必要があります
     widget.move = function () {
-      // no need to throw an error here; just do nothing
-      // TODO: this should return the current position
+      // no need to throw an error here; just do nothing	ここでエラーをスローする必要はない; 何もしない
+      // TODO: this should return the current position		これは現在の位置を返す必要がある
       if (arguments.length === 0) return
 
       var useAnimation = true
 
-      // collect the moves into an object
+      // オブジェクトへの移動を収集する
       var moves = {}
       for (var i = 0; i < arguments.length; i++) {
-        // any "false" to this function means no animations
+        // この関数のfalseは、アニメーションがないことを意味する
         if (arguments[i] === false) {
           useAnimation = false
           continue
         }
 
-        // skip invalid arguments
+        // 無効な引数をスキップ
         if (!validMove(arguments[i])) {
           error(2826, 'Invalid move passed to the move method.', arguments[i])
           continue
@@ -1474,30 +1470,30 @@
         moves[tmp[0]] = tmp[1]
       }
 
-      // calculate position from moves
+      // 動きから位置を計算する
       var newPos = calculatePositionFromMoves(currentPosition, moves)
 
-      // update the board
+      // ボードを更新する
       widget.position(newPos, useAnimation)
 
-      // return the new position object
+      // 新しい位置オブジェクトを返す
       return newPos
     }
 
     widget.orientation = function (arg) {
-      // no arguments, return the current orientation
+      // 引数なし、現在の向きを返す
       if (arguments.length === 0) {
         return currentOrientation
       }
 
-      // set to white or black
+      // 白または黒に設定
       if (arg === 'white' || arg === 'black') {
         currentOrientation = arg
         drawBoard()
         return currentOrientation
       }
 
-      // flip orientation
+      // 向きを反転
       if (arg === 'flip') {
         currentOrientation = currentOrientation === 'white' ? 'black' : 'white'
         drawBoard()
@@ -1508,74 +1504,74 @@
     }
 
     widget.position = function (position, useAnimation) {
-      // no arguments, return the current position
+      // 引数なし、現在の位置を返す
       if (arguments.length === 0) {
         return deepCopy(currentPosition)
       }
 
-      // get position as FEN
+      // FENとして位置を得る
       if (isString(position) && position.toLowerCase() === 'fen') {
         return objToFen(currentPosition)
       }
 
-      // start position
+      // 開始位置
       if (isString(position) && position.toLowerCase() === 'start') {
         position = deepCopy(START_POSITION)
       }
 
-      // convert FEN to position object
+      // FEN を位置オブジェクトに変換する
       if (validFen(position)) {
         position = fenToObj(position)
       }
 
-      // validate position object
+      // 位置オブジェクトを検証する
       if (!validPositionObject(position)) {
         error(6482, 'Invalid value passed to the position method.', position)
         return
       }
 
-      // default for useAnimations is true
+      // useAnimations のデフォルトは true
       if (useAnimation !== false) useAnimation = true
 
       if (useAnimation) {
-        // start the animations
+        // アニメーションを開始
         var animations = calculateAnimations(currentPosition, position)
         doAnimations(animations, currentPosition, position)
 
-        // set the new position
+        // 新しい位置をセットする
         setCurrentPosition(position)
       } else {
-        // instant update
+        // 即時更新
         setCurrentPosition(position)
         drawPositionInstant()
       }
     }
 
     widget.resize = function () {
-      // calulate the new square size
+      // 新しいマスのサイズを計算する
       squareSize = calculateSquareSize()
 
-      // set board width
+      // ボード幅の設定
       $board.css('width', squareSize * 8 + 'px')
 
-      // set drag piece size
+      // ドラッグされた駒のサイズを設定する
       $draggedPiece.css({
         height: squareSize,
         width: squareSize
       })
 
-      // spare pieces
+      // 予備の駒
       if (config.sparePieces) {
         $container
           .find('.' + CSS.sparePieces)
           .css('paddingLeft', squareSize + boardBorderSize + 'px')
       }
 
-      // redraw the board
+      // ボードを再描画
       drawBoard()
     }
 
-    // set the starting position
+    // 開始位置を設定する
     widget.start = function (useAnimation) {
       widget.position('start', useAnimation)
     }
@@ -1589,10 +1585,10 @@
     }
 
     function mousedownSquare (evt) {
-      // do nothing if we're not draggable
+      // ドラッグできない場合は何もしない
       if (!config.draggable) return
 
-      // do nothing if there is no piece on this square
+      // このマスに駒がない場合は何もしない
       var square = $(this).attr('data-square')
       if (!validSquare(square)) return
       if (!currentPosition.hasOwnProperty(square)) return
@@ -1601,10 +1597,10 @@
     }
 
     function touchstartSquare (e) {
-      // do nothing if we're not draggable
+      // ドラッグできない場合は何もしない
       if (!config.draggable) return
 
-      // do nothing if there is no piece on this square
+      // このマスに駒がない場合は何もしない
       var square = $(this).attr('data-square')
       if (!validSquare(square)) return
       if (!currentPosition.hasOwnProperty(square)) return
@@ -1619,7 +1615,7 @@
     }
 
     function mousedownSparePiece (evt) {
-      // do nothing if sparePieces is not enabled
+      // sparePieces が有効になっていない場合は何もしない
       if (!config.sparePieces) return
 
       var piece = $(this).attr('data-piece')
@@ -1628,7 +1624,7 @@
     }
 
     function touchstartSparePiece (e) {
-      // do nothing if sparePieces is not enabled
+      // sparePieces が有効になっていない場合は何もしない
       if (!config.sparePieces) return
 
       var piece = $(this).attr('data-piece')
@@ -1651,10 +1647,10 @@
     var throttledMousemoveWindow = throttle(mousemoveWindow, config.dragThrottleRate)
 
     function touchmoveWindow (evt) {
-      // do nothing if we are not dragging a piece
+      // 駒をドラッグしていない場合は何もしない
       if (!isDragging) return
 
-      // prevent screen from scrolling
+      // 画面がスクロールしないようにする
       evt.preventDefault()
 
       updateDraggedPiece(evt.originalEvent.changedTouches[0].pageX,
@@ -1664,20 +1660,20 @@
     var throttledTouchmoveWindow = throttle(touchmoveWindow, config.dragThrottleRate)
 
     function mouseupWindow (evt) {
-      // do nothing if we are not dragging a piece
+      // 駒をドラッグしていない場合は何もしない
       if (!isDragging) return
 
-      // get the location
+      // 場所を取得する
       var location = isXYOnSquare(evt.pageX, evt.pageY)
 
       stopDraggedPiece(location)
     }
 
     function touchendWindow (evt) {
-      // do nothing if we are not dragging a piece
+      // 駒をドラッグしていない場合は何もしない
       if (!isDragging) return
 
-      // get the location
+      // 場所を取得する
       var location = isXYOnSquare(evt.originalEvent.changedTouches[0].pageX,
         evt.originalEvent.changedTouches[0].pageY)
 
@@ -1685,59 +1681,59 @@
     }
 
     function mouseenterSquare (evt) {
-      // do not fire this event if we are dragging a piece
-      // NOTE: this should never happen, but it's a safeguard
+      // 駒をドラッグしている場合は、このイベントを発生させないこと
+      // NOTE: これは決して起こらないはずだが、安全策として用意している
       if (isDragging) return
 
-      // exit if they did not provide a onMouseoverSquare function
+      // onMouseoverSquare 関数を提供していない場合は終了します
       if (!isFunction(config.onMouseoverSquare)) return
 
-      // get the square
+      // マスを得る
       var square = $(evt.currentTarget).attr('data-square')
 
-      // NOTE: this should never happen; defensive
+      // NOTE: これは決して起こらないはずだが、安全策として用意している
       if (!validSquare(square)) return
 
-      // get the piece on this square
+      // このマスのピースを得る
       var piece = false
       if (currentPosition.hasOwnProperty(square)) {
         piece = currentPosition[square]
       }
 
-      // execute their function
+      // 関数を実行
       config.onMouseoverSquare(square, piece, deepCopy(currentPosition), currentOrientation)
     }
 
     function mouseleaveSquare (evt) {
-      // do not fire this event if we are dragging a piece
-      // NOTE: this should never happen, but it's a safeguard
+      // 駒をドラッグしている場合は、このイベントを発生させないでください
+      // NOTE: これは決して起こらないはずだが、安全策として用意している
       if (isDragging) return
 
-      // exit if they did not provide an onMouseoutSquare function
+      // onMouseoutSquare 関数を提供していない場合は終了
       if (!isFunction(config.onMouseoutSquare)) return
 
-      // get the square
+      // マスを取得
       var square = $(evt.currentTarget).attr('data-square')
 
-      // NOTE: this should never happen; defensive
+      // NOTE: これは決して起こらないはずだが、安全策として用意している
       if (!validSquare(square)) return
 
-      // get the piece on this square
+      //このマスの駒を得る
       var piece = false
       if (currentPosition.hasOwnProperty(square)) {
         piece = currentPosition[square]
       }
 
-      // execute their function
+      // 関数を実行
       config.onMouseoutSquare(square, piece, deepCopy(currentPosition), currentOrientation)
     }
 
     // -------------------------------------------------------------------------
-    // Initialization
+    // 初期化
     // -------------------------------------------------------------------------
 
     function addEvents () {
-      // prevent "image drag"
+      // "image drag"を防ぐ
       $('body').on('mousedown mousemove', '.' + CSS.piece, stopDefault)
 
       // mouse drag pieces
@@ -1749,7 +1745,7 @@
         .on('mouseenter', '.' + CSS.square, mouseenterSquare)
         .on('mouseleave', '.' + CSS.square, mouseleaveSquare)
 
-      // piece drag
+      // 駒をドラッグ
       var $window = $(window)
       $window
         .on('mousemove', throttledMousemoveWindow)
@@ -1766,10 +1762,10 @@
     }
 
     function initDOM () {
-      // create unique IDs for all the elements we will create
+      // 作成するすべての要素に一意の ID を作成します
       createElIds()
 
-      // build board and save it in memory
+      //　ボードをビルドしてメモリに保存する
       $container.html(buildContainerHTML(config.sparePieces))
       $board = $container.find('.' + CSS.board)
 
@@ -1778,40 +1774,39 @@
         $sparePiecesBottom = $container.find('.' + CSS.sparePiecesBottom)
       }
 
-      // create the drag piece
+      // ドラッグされる駒を作成する
       var draggedPieceId = uuid()
       $('body').append(buildPieceHTML('wP', true, draggedPieceId))
       $draggedPiece = $('#' + draggedPieceId)
 
-      // TODO: need to remove this dragged piece element if the board is no
-      // longer in the DOM
+      // TODO: ボードが DOM に存在しなくなった場合は、このドラッグされた駒の要素を削除する必要がある
 
-      // get the border size
+      // ボーダーサイズを取得
       boardBorderSize = parseInt($board.css('borderLeftWidth'), 10)
 
-      // set the size and draw the board
+      // サイズを設定してボードを描く
       widget.resize()
     }
 
     // -------------------------------------------------------------------------
-    // Initialization
+    // 初期化
     // -------------------------------------------------------------------------
 
     setInitialState()
     initDOM()
     addEvents()
 
-    // return the widget object
+    // ウィジェットオブジェクトを返す
     return widget
-  } // end constructor
+  } // コンストラクタ終了
 
-  // TODO: do module exports here
+  // TODO: ここでモジュールのエクスポートを行う
   window['Chessboard'] = constructor
 
-  // support legacy ChessBoard name
+  // 従来のChessBoard名をサポート
   window['ChessBoard'] = window['Chessboard']
 
-  // expose util functions
+  // util関数を公開
   window['Chessboard']['fenToObj'] = fenToObj
   window['Chessboard']['objToFen'] = objToFen
 })() // end anonymous wrapper
