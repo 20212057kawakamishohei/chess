@@ -31,7 +31,7 @@
   var DEFAULT_TRASH_SPEED = 100
 
   // 一意のクラス名を使用して、ページ上の他のものとの衝突を防ぎ、セレクターを簡素化する
-  // NOTE: これは変えないで
+  // NOTE: これは変更しないこと
   var CSS = {}
   CSS['alpha'] = 'alpha-d2270'
   CSS['black'] = 'black-3c85d'
@@ -113,7 +113,7 @@
     }
   }
 
-  // returns true if version is >= minimum
+  // versionがminimum以上ならtrueを返す
   function validSemanticVersion (version, minimum) {
     version = parseSemVer(version)
     minimum = parseSemVer(minimum)
@@ -228,7 +228,7 @@
     // 位置情報だけを見る
     fen = fen.replace(/ .+$/, '')
 
-    // 空の平方数を 1 だけに拡張する
+    // 空のマスの数を 1 だけに展開する
     fen = expandFenEmptySquares(fen)
 
     // FEN は、スラッシュで区切られた 8 つのセクションである必要がある
@@ -481,7 +481,7 @@
       return a.distance - b.distance
     })
 
-    // スクエアコードを返すだけ
+    // square cordを返すだけ
     var surroundingSquares = []
     for (i = 0; i < squares.length; i++) {
       surroundingSquares.push(squares[i].square)
