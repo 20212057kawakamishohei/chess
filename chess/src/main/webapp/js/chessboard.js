@@ -1800,7 +1800,7 @@
     return widget
   } // コンストラクタ終了
 
-  // TODO: ここでモジュールのエクスポートを行う
+  // TODO: ここでモジュールのエクスポートを行う.
   window['Chessboard'] = constructor
 
   // 従来のChessBoard名をサポート
