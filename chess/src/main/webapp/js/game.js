@@ -40,8 +40,8 @@ var onDrop = function(source, target) {
   // 駒の移動に問題があれば元の位置に戻す
   if (move === null) return 'snapback';
   
-  // CPUプレイヤーの移動処理を実行。
-  // アニメーションをスムーズにするため、
+  // CPUプレイヤーの移動処理を実行
+  // アニメーションをスムーズにするため
   // 少しタイミングをずらす
   window.setTimeout(makeCPUmove, 250);
 };
